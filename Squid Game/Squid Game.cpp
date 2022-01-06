@@ -4,6 +4,7 @@
 #include <time.h> 
 #include <algorithm>
 #include <iterator>
+#include <conio.h>
 
 using namespace std;
 
@@ -103,7 +104,7 @@ int main()
 
 	Worker workers[9];
 
-	string random_masks[9] = { "square", "square", "square", "cirlce", "cirlce", "cirlce", "triangle", "triangle", "triangle" };
+	string random_masks[9] = { "square", "square", "square", "circle", "circle", "circle", "triangle", "triangle", "triangle" };
 	random_shuffle(begin(random_masks), end(random_masks));
 
 	for (i = 0; i < 9; i++)
@@ -135,6 +136,8 @@ int main()
 
 	random_shuffle(begin(random_contestants), end(random_contestants));
 
+	cout << "--Workers and their contestants--\n";
+
 	j = 0;
 	for (i = 0; i < 9; i++)
 	{
@@ -153,5 +156,11 @@ int main()
 	}
 
 	cout << "--------------------------------------------" << endl;
+
+	cout << "Press any key to continue . . .";
+	getchar();
+
+	cout << endl;
+	cout << "The first game is Red Light, Green Light";
 
 }
