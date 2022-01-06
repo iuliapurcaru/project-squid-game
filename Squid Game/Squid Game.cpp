@@ -129,6 +129,17 @@ public:
 
 };
 
+class TugOfWar
+{
+public:
+
+	TugOfWar() {}
+	~TugOfWar() {}
+
+	int members[15];
+	int total_weight;
+};
+
 int main()
 {
 	int i, j, aux;
@@ -261,8 +272,69 @@ int main()
 
 	// 2. TUG OF WAR
 
-	cout << "The second game is TUG OF WAR." << endl << endl;
+	cout << "The second game is TUG OF WAR." << endl;
+	cout << "The contestants will be split into 4 groups." << endl << endl;
 	cout << "Press enter to continue . . .";
 	cin.get();
+
+	cout << endl;
+
+	int remaining_numbers[50];
+
+	for (i = 0; i < n_remaining; i++)
+	{
+		remaining_numbers[i] = remaining_contestants[i].number;
+	}
+
+	random_shuffle(begin(remaining_numbers), end(remaining_numbers));
+
+	TugOfWar team[4];
+	
+	j = 0;
+	for (i = 0; i < n_remaining / 4; i++)
+	{
+		team[0].members[i] = remaining_numbers[j];
+		team[1].members[i] = remaining_numbers[j + 1];
+		team[2].members[i] = remaining_numbers[j + 2];
+		team[3].members[i] = remaining_numbers[j + 3];
+
+		j += 4;
+	}
+
+	for (i = 0; i < 4; i++)
+	{
+		team[i].total_weight = 0;
+		cout << "Team " << i + 1 << ": ";
+		for (j = 0; j < n_remaining / 4; j++)
+		{
+			cout << team[i].members[j] << " ";
+			team[i].total_weight += contestants[team[i].members[j] - 1].weight;
+		}
+		cout << "- total weight: " << team[i].total_weight << endl;
+
+		cout << endl;
+	}
+
+	/*for (i = 0; i < 4; i++)
+	{
+		team[i].total_weight = 0;
+		cout << "Team " << i + 1 << ": ";
+		for (j = 0; j < n_remaining / 4; j++)
+		{
+			team[i].total_weight += remaining_contestants[team[i].members[j] - 1].weight;
+		}
+		cout << team[i].total_weight << endl;
+	}
+
+	for (i = 0; i < 4; i++)
+	{
+		team[i].total_weight = 0;
+		cout << "Team " << i + 1 << ": " << endl;
+		for (j = 0; j < n_remaining / 4; j++)
+		{
+			remaining_contestants[team[i].members[j] - 1].printData();
+		}
+		cout << team[i].total_weight << endl;
+	}*/
 
 }
