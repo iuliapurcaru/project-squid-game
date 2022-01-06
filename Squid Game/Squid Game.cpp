@@ -8,10 +8,12 @@
 
 using namespace std;
 
+// names and cities for random generator
 string random_names[15] = { "Julia", "Sam", "James", "Robert", "Sarah", "Oliver", "Emily", "Kevin", "Sophie", "Anna", "Noah", "Emma", "George", "Chloe", "Lewis" };
 string random_surnames[15] = { "Hill", "Smith", "Johnson", "William", "Brown", "Jones", "Russell", "Davis", "Wilson", "Watson", "Taylor", "Moore", "Jackson", "Miller", "Clark" };
 string random_cities[10] = { "Berlin", "Rome", "Athens", "Paris", "Vienna", "London", "Dublin", "Madrid", "Oslo", "Prague" };
 
+// numbers for random generator
 int random_numbers[99] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 						11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 						21, 22, 23, 24, 25,26, 27, 28, 29, 30,
@@ -34,8 +36,7 @@ public:
 
 	void setData();
 
-	void printData()
-	{}
+	void printData() {}
 };
 
 void Participant::setData()
@@ -96,7 +97,7 @@ Contestant::Contestant(const Contestant& c1)
 class Guard : public Participant
 {
 private:
-	int team[11];
+	int group[11];
 
 public:
 	string mask;
@@ -104,21 +105,21 @@ public:
 	Guard() {}
 	~Guard() {}
 
-	void setTeam(int j)
+	void setGroup(int j)
 	{
 		int i = 0;
 		int jmax = j + 11;
 
 		for (; j < jmax; j++)
 		{
-			this->team[i] = random_numbers[j];
+			this->group[i] = random_numbers[j];
 			i++;
 		}
 	}
 
-	int getTeam(int j)
+	int getGroup(int j)
 	{
-		return this->team[j];
+		return this->group[j];
 	}
 
 	void printData()
@@ -131,56 +132,76 @@ public:
 int main()
 {
 	int i, j, aux;
-	int n_remaining = 0;
+
+	int n_contestants = 99;	// number of remaining contestants; always stays the same
+	int n_guards = 9;	//number of guards; always stays the same
+	int n_remaining = 0;	// number of remaining contestants; will be modified 
 
 	srand((unsigned int)time(NULL));
 
-	Contestant contestants[99];
+
+	// GETTING READY
+
+	// setting data for contestants
+
+	Contestant contestants[99]; // contestants array will NOT be modified
 
 	cout << "\t\t--CONTESTANTS--" << endl;
 	cout << "Number\tName\tSurname\tCity\tDebt\tWeight" << endl;
+	cout << "--------------------------------------------" << endl;
 
-	for (i = 0; i < 99; i++)
+	for (i = 0; i < n_contestants; i++)
 	{
 		contestants[i].setNumber(i + 1);
 		contestants[i].Participant::setData();
 		contestants[i].printData();
 	}
 
-	Contestant remaining_contestants[99];
-	for (i = 0; i < 99; i++)
+	// creating array for remaining contestants (copying the contestants array into a separate one)
+
+	Contestant remaining_contestants[99];	// remaining_contestants array will be modified when contestants are eliminated
+											// the last member of this array will be the winner
+	for (i = 0; i < n_contestants; i++)
 	{
-		n_remaining++;
 		remaining_contestants[i] = contestants[i];
 	}
 
-	cout << "--------------------------------------------" << endl;
+	n_remaining = n_contestants;
+
+	cout << "--------------------------------------------" << endl << endl;
+
+
+	// setting data for guards
 
 	Guard guards[9];
 
 	cout << "\t\t--GUARDS--" << endl;
 	cout << "Mask\tName\tSurname\tCity\tDebt" << endl;
+	cout << "--------------------------------------------" << endl;
 
 	string random_masks[9] = { "square", "square", "square", "circle", "circle", "circle", "triangle", "triangle", "triangle" };
 	random_shuffle(begin(random_masks), end(random_masks));
 
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < n_guards; i++)
 	{
 		guards[i].mask = random_masks[i];
 		guards[i].Participant::setData();
 		guards[i].printData();
 	}
 
-	cout << "--------------------------------------------" << endl;
+	cout << "--------------------------------------------" << endl << endl;
 
-	random_shuffle(begin(random_numbers), end(random_numbers));
 
-	cout << "--Guards and the contestants they supervise--\n";
+	// splitting contestants into groups - each guard will have 11 contestants
+
+	cout << "--Guards and the contestants they will supervise--\n";
+
+	random_shuffle(begin(random_numbers), end(random_numbers)); // random number generator
 
 	j = 0;
 	for (i = 0; i < 9; i++)
 	{
-		guards[i].setTeam(j);
+		guards[i].setGroup(j);
 		j += 11;
 	}
 
@@ -189,32 +210,59 @@ int main()
 		cout << "Guard " << i + 1 << ": ";
 		for (j = 0; j < 11; j++)
 		{
-			cout << guards[i].getTeam(j) << " ";
+			cout << guards[i].getGroup(j) << " ";
 		}
 		cout << endl;
 	}
 
-	cout << "--------------------------------------------" << endl;
+	cout << "--------------------------------------------" << endl << endl;
 
 	cout << "Press enter to continue . . .";
 	cin.get();
 
-	//RED LIGHT GREEN LIGHT
+	cout << "--------------------------------------------" << endl << endl;
 
-	cout << endl;
-	cout << "The first game is Red Light, Green Light" << endl;
+	// Let the games begin!
+	// 
+	// 1. RED LIGHT GREEN LIGHT
+
+	cout << "The first game is RED LIGHT GREEN LIGHT." << endl << endl;
+	cout << "Press enter to continue . . .";
 	cin.get();
+
+	// eliminating contestants
 
 	aux = 0;
 	for (i = 0; i < n_remaining; i++)
-	{
-		if (remaining_contestants[i].number % 2)
+	{		
+		if (remaining_contestants[i].number % 2 == 0)
 		{
-			aux++;
-			remaining_contestants[i].printData();
+			for (int j = i; j < n_remaining - 1; j++)
+			{
+				remaining_contestants[j] = remaining_contestants[j + 1];
+			}
+			n_remaining--;
 		}
 	}
 
-	n_remaining = aux;
+	cout << "\t --REMAINING CONTESTANTS--" << endl;
+	for (i = 0; i < n_remaining; i++)
+	{
+		remaining_contestants[i].printData();
+	}
+
+	cout << "--------------------------------------------" << endl << endl;
+
+	cout << "Press enter to continue . . .";
+	cin.get();
+
+	cout << "--------------------------------------------" << endl << endl;
+
+
+	// 2. TUG OF WAR
+
+	cout << "The second game is TUG OF WAR." << endl << endl;
+	cout << "Press enter to continue . . .";
+	cin.get();
 
 }
