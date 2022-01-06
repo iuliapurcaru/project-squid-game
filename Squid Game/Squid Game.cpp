@@ -13,15 +13,15 @@ string random_surnames[15] = { "Hill", "Smith", "Johnson", "William", "Brown", "
 string random_cities[10] = { "Berlin", "Rome", "Athens", "Paris", "Vienna", "London", "Dublin", "Madrid", "Oslo", "Prague" };
 
 int random_numbers[99] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-		11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-		21, 22, 23, 24, 25,26, 27, 28, 29, 30,
-		31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-		41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
-		51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-		61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
-		71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-		81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
-		91, 92, 93, 94, 95, 96, 97, 98, 99 };
+						11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+						21, 22, 23, 24, 25,26, 27, 28, 29, 30,
+						31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+						41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+						51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+						61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+						71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+						81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+						91, 92, 93, 94, 95, 96, 97, 98, 99 };
 
 class Participant
 {
@@ -32,19 +32,13 @@ public:
 	int debt;
 	int weight;
 
+	void setData();
+
+	void printData()
+	{}
 };
 
-class Contestant : public Participant
-{
-public:
-	int number;
-
-	Contestant();
-	Contestant(const Contestant& c1);
-	~Contestant() {}
-};
-
-Contestant::Contestant()
+void Participant::setData()
 {
 	int random;
 
@@ -59,8 +53,27 @@ Contestant::Contestant()
 
 	debt = rand() % 100000 + 10000;
 	weight = rand() % 50 + 50;
-
 }
+
+class Contestant : public Participant
+{
+public:
+	int number;
+
+	Contestant() {}
+	Contestant(const Contestant& c1);
+	~Contestant() {}
+
+	void setNumber(int n)
+	{
+		number = n;
+	}
+
+	void printData()
+	{
+		cout << number << "\t" << name << "\t" << surname << "\t" << city << "\t$" << debt << "\t" << weight << "kg " << endl;
+	}
+};
 
 Contestant::Contestant(const Contestant& c1)
 {
@@ -88,7 +101,8 @@ private:
 public:
 	string mask;
 
-	Guard();
+	Guard() {}
+	~Guard() {}
 
 	void setTeam(int j)
 	{
@@ -107,32 +121,19 @@ public:
 		return this->team[j];
 	}
 
+	void printData()
+	{
+		cout << mask << " " << name << "\t" << surname << "\t" << city << "\t$" << debt << endl;
+	}
+
 };
-
-Guard::Guard()
-{
-	int random;
-
-	random = rand() % 15;
-	name = random_names[random];
-
-	random = rand() % 15;
-	surname = random_surnames[random];
-
-	random = rand() % 10;
-	city = random_cities[random];
-
-	debt = rand() % 100000 + 10000;
-	weight = rand() % 50 + 50;
-}
 
 int main()
 {
 	int i, j, aux;
-	int random;
 	int n_remaining = 0;
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	Contestant contestants[99];
 
@@ -141,8 +142,9 @@ int main()
 
 	for (i = 0; i < 99; i++)
 	{
-		contestants[i].number = i + 1;
-		cout << contestants[i].number << "\t" << contestants[i].name << "\t" << contestants[i].surname << "\t" << contestants[i].city << "\t$" << contestants[i].debt << "\t" << contestants[i].weight << "kg " << endl;
+		contestants[i].setNumber(i + 1);
+		contestants[i].Participant::setData();
+		contestants[i].printData();
 	}
 
 	Contestant remaining_contestants[99];
@@ -156,33 +158,17 @@ int main()
 
 	Guard guards[9];
 
-	/*for (i = 0; i < 9; i++)
-	{
-		guards[i].mask = random_masks[i];
-
-		random = rand() % 15;
-		guards[i].name = random_names[random];
-
-		random = rand() % 15;
-		guards[i].surname = random_surnames[random];
-
-		random = rand() % 10;
-		guards[i].city = random_cities[random];
-
-		guards[i].debt = rand() % 100000 + 10000;
-		guards[i].weight = rand() % 50 + 50;
-	}*/
-
 	cout << "\t\t--GUARDS--" << endl;
-	cout << "Mask\tName\tSurname\tCity\tDebt\tWeight" << endl;
+	cout << "Mask\tName\tSurname\tCity\tDebt" << endl;
 
 	string random_masks[9] = { "square", "square", "square", "circle", "circle", "circle", "triangle", "triangle", "triangle" };
 	random_shuffle(begin(random_masks), end(random_masks));
-	
+
 	for (i = 0; i < 9; i++)
 	{
 		guards[i].mask = random_masks[i];
-		cout << guards[i].mask << " " << guards[i].name << "\t" << guards[i].surname << "\t" << guards[i].city << "\t$" << guards[i].debt << "\t" << guards[i].weight << "kg " << endl;
+		guards[i].Participant::setData();
+		guards[i].printData();
 	}
 
 	cout << "--------------------------------------------" << endl;
@@ -213,17 +199,19 @@ int main()
 	cout << "Press enter to continue . . .";
 	cin.get();
 
+	//RED LIGHT GREEN LIGHT
+
 	cout << endl;
 	cout << "The first game is Red Light, Green Light" << endl;
 	cin.get();
-	
+
 	aux = 0;
 	for (i = 0; i < n_remaining; i++)
 	{
 		if (remaining_contestants[i].number % 2)
 		{
 			aux++;
-			cout << remaining_contestants[i].number << "\t" << remaining_contestants[i].name << "\t" << remaining_contestants[i].surname << "\t" << remaining_contestants[i].city << "\t$" << remaining_contestants[i].debt << "\t" << remaining_contestants[i].weight << "kg " << endl;
+			remaining_contestants[i].printData();
 		}
 	}
 
