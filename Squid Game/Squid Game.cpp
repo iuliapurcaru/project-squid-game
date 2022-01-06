@@ -138,11 +138,20 @@ public:
 
 	int members[15];
 	int total_weight;
+
 };
+
+template <typename X>
+X maxNum(X a, X b)
+{
+	if (a > b)
+		return a;
+	else return b;
+}
 
 int main()
 {
-	int i, j, aux;
+	int i, j, k, aux;
 
 	int n_contestants = 99;	// number of remaining contestants; always stays the same
 	int n_guards = 9;	//number of guards; always stays the same
@@ -248,7 +257,7 @@ int main()
 	{		
 		if (remaining_contestants[i].number % 2 == 0)
 		{
-			for (int j = i; j < n_remaining - 1; j++)
+			for (j = i; j < n_remaining - 1; j++)
 			{
 				remaining_contestants[j] = remaining_contestants[j + 1];
 			}
@@ -279,24 +288,24 @@ int main()
 
 	cout << endl;
 
-	int remaining_numbers[50];
+	int remaining_index[50];
 
 	for (i = 0; i < n_remaining; i++)
 	{
-		remaining_numbers[i] = remaining_contestants[i].number;
+		remaining_index[i] = i;
 	}
 
-	random_shuffle(begin(remaining_numbers), end(remaining_numbers));
+	//random_shuffle(begin(remaining_index), end(remaining_index));
 
 	TugOfWar team[4];
 	
 	j = 0;
 	for (i = 0; i < n_remaining / 4; i++)
 	{
-		team[0].members[i] = remaining_numbers[j];
-		team[1].members[i] = remaining_numbers[j + 1];
-		team[2].members[i] = remaining_numbers[j + 2];
-		team[3].members[i] = remaining_numbers[j + 3];
+		team[0].members[i] = remaining_index[j];
+		team[1].members[i] = remaining_index[j + 1];
+		team[2].members[i] = remaining_index[j + 2];
+		team[3].members[i] = remaining_index[j + 3];
 
 		j += 4;
 	}
@@ -307,34 +316,39 @@ int main()
 		cout << "Team " << i + 1 << ": ";
 		for (j = 0; j < n_remaining / 4; j++)
 		{
-			cout << team[i].members[j] << " ";
-			team[i].total_weight += contestants[team[i].members[j] - 1].weight;
+			cout << remaining_contestants[team[i].members[j]].number << " - " << team[i].members[j] << ", ";
+			team[i].total_weight += remaining_contestants[team[i].members[j]].weight;
 		}
 		cout << "- total weight: " << team[i].total_weight << endl;
 
 		cout << endl;
 	}
 
-	/*for (i = 0; i < 4; i++)
-	{
-		team[i].total_weight = 0;
-		cout << "Team " << i + 1 << ": ";
-		for (j = 0; j < n_remaining / 4; j++)
-		{
-			team[i].total_weight += remaining_contestants[team[i].members[j] - 1].weight;
-		}
-		cout << team[i].total_weight << endl;
-	}
+	int max1, max2, final_max;
+
+	max1 = maxNum<int>(team[0].total_weight, team[1].total_weight);
+	max2 = maxNum<int>(team[2].total_weight, team[3].total_weight);
+	final_max = maxNum<int>(max1, max2);
 
 	for (i = 0; i < 4; i++)
 	{
-		team[i].total_weight = 0;
-		cout << "Team " << i + 1 << ": " << endl;
-		for (j = 0; j < n_remaining / 4; j++)
+		if (final_max != team[i].total_weight)
 		{
-			remaining_contestants[team[i].members[j] - 1].printData();
+			for (j = 0; j < 12; j++)
+			{
+				cout << team[i].members[j] << "|| ";
+				for (k = team[i].members[j]; k < n_remaining - 1; k++)
+				{
+					remaining_contestants[k] = remaining_contestants[k + 1];
+				}
+				n_remaining--;
+			}
 		}
-		cout << team[i].total_weight << endl;
-	}*/
+	}
 
+	cout << "\t --REMAINING CONTESTANTS--" << endl;
+	for (i = 0; i < n_remaining; i++)
+	{
+		remaining_contestants[i].printData();
+	}
 }
