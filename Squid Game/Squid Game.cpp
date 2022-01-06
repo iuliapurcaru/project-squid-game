@@ -2,6 +2,8 @@
 #include <string>
 #include <stdlib.h>
 #include <time.h> 
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 
@@ -35,10 +37,7 @@ int main()
 {
     int i;
     int random;
-
-    int n_part = 108;
-    int n_cont = 99;
-    int n_work = 9;
+    int shuffle[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
     Contestant contestants[99];
     
@@ -66,6 +65,38 @@ int main()
     for (i = 0; i < 99; i++)
     {
         cout << contestants[i].number << "\t" << contestants[i].name << "\t" << contestants[i].surname << "\t" << contestants[i].city << "\t$" << contestants[i].debt << "\t" << contestants[i].weight << "kg " << endl;
+    }
+
+    cout << "--------------------------------------------" << endl;
+
+    Worker workers[9];
+
+    string random_masks[9] = { "square", "square", "square", "cirlce", "cirlce", "cirlce", "triangle", "triangle", "triangle" };
+    random_shuffle(begin(random_masks), end(random_masks));
+
+    for (i = 0; i < 9; i++)
+    {
+        workers[i].mask = random_masks[i];
+
+        random = rand() % 15;
+        workers[i].name = random_names[random];
+
+        random = rand() % 15;
+        workers[i].surname = random_surnames[random];
+
+        random = rand() % 10;
+        workers[i].city = random_cities[random];
+
+        workers[i].debt = rand() % 100000 + 10000;
+        workers[i].weight = rand() % 50 + 50;
+    }
+
+    cout << "\t\t--WORKERS--" << endl;
+    cout << "Mask\tName\tSurname\tCity\tDebt\tWeight" << endl;
+
+    for (i = 0; i < 9; i++)
+    {
+        cout << workers[i].mask << " " << workers[i].name << "\t" << workers[i].surname << "\t" << workers[i].city << "\t$" << workers[i].debt << "\t" << workers[i].weight << "kg " << endl;
     }
 
     cout << "--------------------------------------------" << endl;
