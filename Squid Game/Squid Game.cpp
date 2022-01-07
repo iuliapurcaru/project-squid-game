@@ -149,6 +149,21 @@ X maxNum(X a, X b)
 	else return b;
 }
 
+void bubbleSort(int arr[], int n)
+{
+	int i, j, aux;
+	for (i = 0; i < n - 1; i++)
+
+		// Last i elements are already in place 
+		for (j = 0; j < n - i - 1; j++)
+			if (arr[j] > arr[j + 1])
+			{
+				aux = arr[j];
+				arr[j] = arr[j + 1];
+				arr[j + 1] = aux;
+			}
+}
+
 int main()
 {
 	int i, j, k, aux;
@@ -254,7 +269,7 @@ int main()
 
 	aux = 0;
 	for (i = 0; i < n_remaining; i++)
-	{		
+	{
 		if (remaining_contestants[i].number % 2 == 0)
 		{
 			for (j = i; j < n_remaining - 1; j++)
@@ -295,10 +310,10 @@ int main()
 		remaining_index[i] = i;
 	}
 
-	//random_shuffle(begin(remaining_index), end(remaining_index));
+	random_shuffle(begin(remaining_index), end(remaining_index));
 
 	TugOfWar team[4];
-	
+
 	j = 0;
 	for (i = 0; i < n_remaining / 4; i++)
 	{
@@ -316,7 +331,7 @@ int main()
 		cout << "Team " << i + 1 << ": ";
 		for (j = 0; j < n_remaining / 4; j++)
 		{
-			cout << remaining_contestants[team[i].members[j]].number << " - " << team[i].members[j] << ", ";
+			cout << remaining_contestants[team[i].members[j]].number << " ";
 			team[i].total_weight += remaining_contestants[team[i].members[j]].weight;
 		}
 		cout << "- total weight: " << team[i].total_weight << endl;
@@ -330,19 +345,35 @@ int main()
 	max2 = maxNum<int>(team[2].total_weight, team[3].total_weight);
 	final_max = maxNum<int>(max1, max2);
 
+	int eliminate_numbers[40], l;
+
+	l = 0;
 	for (i = 0; i < 4; i++)
 	{
 		if (final_max != team[i].total_weight)
 		{
 			for (j = 0; j < 12; j++)
 			{
-				cout << team[i].members[j] << "|| ";
-				for (k = team[i].members[j]; k < n_remaining - 1; k++)
-				{
-					remaining_contestants[k] = remaining_contestants[k + 1];
-				}
-				n_remaining--;
+				eliminate_numbers[l] = remaining_contestants[team[i].members[j]].number;
+				l++;
 			}
+		}
+	}
+
+	bubbleSort(eliminate_numbers, (n_remaining/4)*3);
+
+	l = 0;
+	for (i = 0; i < n_remaining; i++)
+	{
+		if (remaining_contestants[i].number == eliminate_numbers[l])
+		{
+			for (j = i; j < n_remaining - 1; j++)
+			{
+				remaining_contestants[j] = remaining_contestants[j + 1];
+			}
+			n_remaining--;
+			i--;
+			l++;
 		}
 	}
 
@@ -351,4 +382,6 @@ int main()
 	{
 		remaining_contestants[i].printData();
 	}
+
+	// pune numerele ramase intr-un vector, ordoneaza-l crescator si apoi elimina concurentii care au acele numere 
 }
