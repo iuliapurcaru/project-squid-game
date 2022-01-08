@@ -141,6 +141,17 @@ public:
 
 };
 
+void eliminate_contestants(Contestant remaining_contestants[], int *n_remaining, int i)
+{
+	int j;
+
+	for (j = i; j < *n_remaining - 1; j++)
+	{
+		remaining_contestants[j] = remaining_contestants[j + 1];
+	}
+	(*n_remaining)--;
+}
+
 template <typename X>
 X maxNum(X a, X b)
 {
@@ -153,8 +164,6 @@ void bubbleSort(int arr[], int n)
 {
 	int i, j, aux;
 	for (i = 0; i < n - 1; i++)
-
-		// Last i elements are already in place 
 		for (j = 0; j < n - i - 1; j++)
 			if (arr[j] > arr[j + 1])
 			{
@@ -272,11 +281,7 @@ int main()
 	{
 		if (remaining_contestants[i].number % 2 == 0)
 		{
-			for (j = i; j < n_remaining - 1; j++)
-			{
-				remaining_contestants[j] = remaining_contestants[j + 1];
-			}
-			n_remaining--;
+			eliminate_contestants(remaining_contestants, &n_remaining, i);
 		}
 	}
 
@@ -367,11 +372,7 @@ int main()
 	{
 		if (remaining_contestants[i].number == eliminate_numbers[l])
 		{
-			for (j = i; j < n_remaining - 1; j++)
-			{
-				remaining_contestants[j] = remaining_contestants[j + 1];
-			}
-			n_remaining--;
+			eliminate_contestants(remaining_contestants, &n_remaining, i);
 			i--;
 			l++;
 		}
@@ -383,5 +384,4 @@ int main()
 		remaining_contestants[i].printData();
 	}
 
-	// pune numerele ramase intr-un vector, ordoneaza-l crescator si apoi elimina concurentii care au acele numere 
 }
