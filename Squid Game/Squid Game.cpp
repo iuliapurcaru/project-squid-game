@@ -508,4 +508,34 @@ int main()
 
 	cout << "--------------------------------------------" << endl << endl;
 
+	// 4. GENKEN
+
+	cout << "The final game is GENKEN." << endl;
+	cout << "The contestants will duel until only one remains." << endl << endl;
+	cout << "Press enter to continue . . .";
+	cin.get();
+
+	cout << endl;
+
+	for (i = n_remaining - 1; i >= 0; i-=2)
+	{
+		m1 = marbles[remaining_index[i]].marbles;
+		m2 = marbles[remaining_index[i + 1]].marbles;
+
+		if (m1 > m2)
+		{
+			eliminate_contestants(remaining_contestants, &n_remaining, i);
+		}
+		else
+		{
+			eliminate_contestants(remaining_contestants, &n_remaining, i);
+		}
+	}
+
+	cout << "\t --REMAINING CONTESTANTS--" << endl;
+	for (i = 0; i < n_remaining; i++)
+	{
+		remaining_contestants[i].printData();
+	}
+
 }
