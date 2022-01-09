@@ -133,15 +133,33 @@ class TugOfWar
 {
 public:
 
-	TugOfWar() {}
-	~TugOfWar() {}
-
 	int members[15];
 	int total_weight;
 
+	TugOfWar() {}
+	~TugOfWar() {}
+
 };
 
-void eliminate_contestants(Contestant remaining_contestants[], int *n_remaining, int i)
+class Marbles
+{
+public:
+
+	int marbles;
+	int index;
+
+	Marbles();
+	~Marbles() {}
+
+
+};
+
+Marbles::Marbles()
+{
+	marbles = rand() % 10 + 1;
+}
+
+void eliminate_contestants(Contestant remaining_contestants[], int* n_remaining, int i)
 {
 	int j;
 
@@ -160,22 +178,53 @@ X maxNum(X a, X b)
 	else return b;
 }
 
-void bubbleSort(int arr[], int n)
+template <typename X>
+X minNum(X a, X b)
 {
-	int i, j, aux;
-	for (i = 0; i < n - 1; i++)
-		for (j = 0; j < n - i - 1; j++)
-			if (arr[j] > arr[j + 1])
-			{
-				aux = arr[j];
-				arr[j] = arr[j + 1];
-				arr[j + 1] = aux;
-			}
+	if (a < b)
+		return a;
+	else return b;
+}
+
+int partition(int arr[], int low, int high)
+{
+	int pivot = arr[high];
+	int i = (low - 1);
+	int aux;
+
+	for (int j = low; j <= high - 1; j++)
+	{
+		if (arr[j] < pivot)
+		{
+			i++;
+			aux = arr[i];
+			arr[i] = arr[j];
+			arr[j] = aux;
+		}
+	}
+	aux = arr[i + 1];
+	arr[i + 1] = arr[high];
+	arr[high] = aux;
+
+	return (i + 1);
+}
+
+void quickSort(int arr[], int low, int high)
+{
+	int part;
+
+	if (low < high)
+	{
+		part = partition(arr, low, high);
+
+		quickSort(arr, low, part - 1);
+		quickSort(arr, part + 1, high);
+	}
 }
 
 int main()
 {
-	int i, j, k, aux;
+	int i, j, aux;
 
 	int n_contestants = 99;	// number of remaining contestants; always stays the same
 	int n_guards = 9;	//number of guards; always stays the same
@@ -285,6 +334,8 @@ int main()
 		}
 	}
 
+	// remaining contestants
+
 	cout << "\t --REMAINING CONTESTANTS--" << endl;
 	for (i = 0; i < n_remaining; i++)
 	{
@@ -302,7 +353,7 @@ int main()
 	// 2. TUG OF WAR
 
 	cout << "The second game is TUG OF WAR." << endl;
-	cout << "The contestants will be split into 4 groups." << endl << endl;
+	cout << "The contestants will be divided into 4 groups." << endl << endl;
 	cout << "Press enter to continue . . .";
 	cin.get();
 
@@ -317,37 +368,37 @@ int main()
 
 	random_shuffle(begin(remaining_index), end(remaining_index));
 
-	TugOfWar team[4];
+	TugOfWar group_tow[4];
 
 	j = 0;
 	for (i = 0; i < n_remaining / 4; i++)
 	{
-		team[0].members[i] = remaining_index[j];
-		team[1].members[i] = remaining_index[j + 1];
-		team[2].members[i] = remaining_index[j + 2];
-		team[3].members[i] = remaining_index[j + 3];
+		group_tow[0].members[i] = remaining_index[j];
+		group_tow[1].members[i] = remaining_index[j + 1];
+		group_tow[2].members[i] = remaining_index[j + 2];
+		group_tow[3].members[i] = remaining_index[j + 3];
 
 		j += 4;
 	}
 
 	for (i = 0; i < 4; i++)
 	{
-		team[i].total_weight = 0;
+		group_tow[i].total_weight = 0;
 		cout << "Team " << i + 1 << ": ";
 		for (j = 0; j < n_remaining / 4; j++)
 		{
-			cout << remaining_contestants[team[i].members[j]].number << " ";
-			team[i].total_weight += remaining_contestants[team[i].members[j]].weight;
+			cout << remaining_contestants[group_tow[i].members[j]].number << " ";
+			group_tow[i].total_weight += remaining_contestants[group_tow[i].members[j]].weight;
 		}
-		cout << "- total weight: " << team[i].total_weight << endl;
+		cout << "- total weight: " << group_tow[i].total_weight << endl;
 
 		cout << endl;
 	}
 
 	int max1, max2, final_max;
 
-	max1 = maxNum<int>(team[0].total_weight, team[1].total_weight);
-	max2 = maxNum<int>(team[2].total_weight, team[3].total_weight);
+	max1 = maxNum<int>(group_tow[0].total_weight, group_tow[1].total_weight);
+	max2 = maxNum<int>(group_tow[2].total_weight, group_tow[3].total_weight);
 	final_max = maxNum<int>(max1, max2);
 
 	int eliminate_numbers[40], l;
@@ -355,17 +406,17 @@ int main()
 	l = 0;
 	for (i = 0; i < 4; i++)
 	{
-		if (final_max != team[i].total_weight)
+		if (final_max != group_tow[i].total_weight)
 		{
 			for (j = 0; j < 12; j++)
 			{
-				eliminate_numbers[l] = remaining_contestants[team[i].members[j]].number;
+				eliminate_numbers[l] = remaining_contestants[group_tow[i].members[j]].number;
 				l++;
 			}
 		}
 	}
 
-	bubbleSort(eliminate_numbers, (n_remaining/4)*3);
+	quickSort(eliminate_numbers, 0, (n_remaining / 4) * 3 - 1);
 
 	l = 0;
 	for (i = 0; i < n_remaining; i++)
@@ -382,6 +433,37 @@ int main()
 	for (i = 0; i < n_remaining; i++)
 	{
 		remaining_contestants[i].printData();
+	}
+
+	cout << "--------------------------------------------" << endl << endl;
+
+	cout << "Press enter to continue . . .";
+	cin.get();
+
+	cout << "--------------------------------------------" << endl << endl;
+
+
+	// 3. MARBLES
+
+	cout << "The third game is MARBLES." << endl;
+	cout << "The contestants will be split into pairs." << endl << endl;
+	cout << "Press enter to continue . . .";
+	cin.get();
+
+	for (i = 0; i < n_remaining; i++)
+	{
+		remaining_index[i] = i;
+	}
+
+	random_shuffle(begin(remaining_index), end(remaining_index));
+
+	Marbles marbles[20];
+	int min_marbles[10];
+
+	for (i = 0; i < n_remaining; i += 2)
+	{
+		marbles[i].index = i;
+		minNum<int>(marbles[remaining_index[i]].marbles, marbles[remaining_index[i + 1]].marbles);
 	}
 
 }
