@@ -450,20 +450,62 @@ int main()
 	cout << "Press enter to continue . . .";
 	cin.get();
 
+	cout << endl;
+
 	for (i = 0; i < n_remaining; i++)
 	{
 		remaining_index[i] = i;
 	}
 
-	random_shuffle(begin(remaining_index), end(remaining_index));
-
 	Marbles marbles[20];
 	int min_marbles[10];
+	int m1, m2;
 
+	l = 0;
 	for (i = 0; i < n_remaining; i += 2)
 	{
-		marbles[i].index = i;
-		minNum<int>(marbles[remaining_index[i]].marbles, marbles[remaining_index[i + 1]].marbles);
+		m1 = marbles[remaining_index[i]].marbles;
+		m2 = marbles[remaining_index[i + 1]].marbles;
+		
+		cout << remaining_contestants[remaining_index[i]].number << ", " << m1 << " marbles - ";
+		cout << remaining_contestants[remaining_index[i + 1]].number << ", " << m2 << " marbles" << endl;
+
+		if (m1 > m2)
+		{
+			eliminate_numbers[l] = remaining_contestants[remaining_index[i]].number;
+			l++;
+		}
+		else
+		{
+			eliminate_numbers[l] = remaining_contestants[remaining_index[i + 1]].number;
+			l++;
+		}
 	}
+
+	l = 0;
+	for (i = 0; i < n_remaining; i++)
+	{
+		if (remaining_contestants[i].number == eliminate_numbers[l])
+		{
+			eliminate_contestants(remaining_contestants, &n_remaining, i);
+			i--;
+			l++;
+		}
+	}
+
+	cout << endl;
+
+	cout << "\t --REMAINING CONTESTANTS--" << endl;
+	for (i = 0; i < n_remaining; i++)
+	{
+		remaining_contestants[i].printData();
+	}
+
+	cout << "--------------------------------------------" << endl << endl;
+
+	cout << "Press enter to continue . . .";
+	cin.get();
+
+	cout << "--------------------------------------------" << endl << endl;
 
 }
