@@ -201,62 +201,46 @@ X maxNum(X a, X b)
 }
 
 template <typename X>
-X minNum(X a, X b)
+void selectionSort(X arr[], int n)
 {
-	if (a < b)
-		return a;
-	else return b;
-}
+	int i, j, min_idx;
+	X aux;
 
-int partition(int arr[], int low, int high)
-{
-	int pivot = arr[high];
-	int i = (low - 1);
-	int aux;
-
-	for (int j = low; j <= high - 1; j++)
-	{
-		if (arr[j] < pivot)
-		{
-			i++;
-			aux = arr[i];
-			arr[i] = arr[j];
-			arr[j] = aux;
-		}
-	}
-	aux = arr[i + 1];
-	arr[i + 1] = arr[high];
-	arr[high] = aux;
-
-	return (i + 1);
-}
-
-void quickSort(int arr[], int low, int high)
-{
-	int part;
-
-	if (low < high)
-	{
-		part = partition(arr, low, high);
-
-		quickSort(arr, low, part - 1);
-		quickSort(arr, part + 1, high);
-	}
-}
-
-void bubbleSort(Guard arr[], int n)
-{
-	int i, j, aux;
 	for (i = 0; i < n - 1; i++)
-
-		// Last i elements are already in place 
-		for (j = 0; j < n - i - 1; j++)
-			if (arr[j].prize < arr[j + 1].prize)
+	{
+		min_idx = i;
+		for (j = i + 1; j < n; j++)
+		{
+			if (arr[j] < arr[min_idx])
 			{
-				aux = arr[j].prize;
-				arr[j].prize = arr[j + 1].prize;
-				arr[j + 1].prize = aux;
+				min_idx = j;
 			}
+		}
+		aux = arr[min_idx];
+		arr[min_idx] = arr[i];
+		arr[i] = aux;
+	}
+}
+
+template <>
+void selectionSort(Guard arr[], int n)
+{
+	int i, j, min_idx, aux;
+
+	for (i = 0; i < n - 1; i++)
+	{
+		min_idx = i;
+		for (j = i + 1; j < n; j++)
+		{
+			if (arr[j].prize < arr[min_idx].prize)
+			{
+				min_idx = j;
+			}
+		}
+		aux = arr[min_idx].prize;
+		arr[min_idx].prize = arr[i].prize;
+		arr[i].prize = aux;
+	}
 }
 
 int main()
@@ -453,7 +437,7 @@ int main()
 		}
 	}
 
-	quickSort(eliminate_numbers, 0, (n_remaining / 4) * 3 - 1);
+	selectionSort<int>(eliminate_numbers, (n_remaining / 4) * 3);
 
 	l = 0;
 	for (i = 0; i < n_remaining; i++)
@@ -582,14 +566,16 @@ int main()
 			else i2 = i - 1;
 
 			cout << remaining_contestants[i1].number << " -> " << c1 << " - ";
-			cout << remaining_contestants[i2].number << " -> " << c2 << endl;
+			cout << remaining_contestants[i2].number << " -> " << c2 << " - ";
 
 			if ((c1 == 1 && c2 == 2) || (c1 == 2 && c2 == 3) || (c1 == 3 && c2 == 1))
 			{
+				cout << remaining_contestants[i1].number << " eliminated" << endl;
 				eliminate_contestants(remaining_contestants, &n_remaining, i1);
 			}
 			else if ((c1 == 2 && c2 == 1) || (c1 == 3 && c2 == 2) || (c1 == 1 && c2 == 3))
 			{
+				cout << remaining_contestants[i2].number << " eliminated" << endl;
 				eliminate_contestants(remaining_contestants, &n_remaining, i2);
 			}
 		}
@@ -614,7 +600,7 @@ int main()
 
 	for (i = 0; i < n_contestants; i++)
 	{
-		winner_prize += remaining_contestants[i].debt;
+		winner_prize += contestants[i].debt;
 	}
 
 	cout << "The big prize: $" << winner_prize << endl << endl;
@@ -626,10 +612,15 @@ int main()
 		for (j = 0; j < n_contestants / n_guards; j++)
 		{
 			guards[i].prize += contestants[guards[i].group[j]].debt;
+			if (guards[i].group[j] == remaining_contestants[0].number)
+			{
+				guards[i].prize = remaining_contestants[0].debt * 10;
+				break;
+			}
 		}
 	}
 
-	quickSort(guards[].prize, 0, n_guards - 1);
+	selectionSort<Guard>(guards, n_guards);
 
 	for (i = 0; i < n_guards; i++)
 	{
