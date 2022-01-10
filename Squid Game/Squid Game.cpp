@@ -97,10 +97,12 @@ Contestant::Contestant(const Contestant& c1)
 class Guard : public Participant
 {
 private:
-	int group[11];
-
+	//int group[11];
+	
 public:
 	string mask;
+	int prize;
+	int group[11];
 
 	Guard() {}
 	~Guard() {}
@@ -151,13 +153,33 @@ public:
 	Marbles();
 	~Marbles() {}
 
-
 };
 
 Marbles::Marbles()
 {
 	marbles = rand() % 10 + 1;
 }
+
+class Genken
+{
+public:
+
+	void genkenGame(int a, int b)
+	{
+		if (a == 1 && b == 2)
+		{
+
+		}
+		else if (a == 1 && b == 3)
+		{
+
+		}
+		else if (a == 2 && b == 3)
+		{
+
+		}
+	}
+};
 
 void eliminate_contestants(Contestant remaining_contestants[], int* n_remaining, int i)
 {
@@ -220,6 +242,21 @@ void quickSort(int arr[], int low, int high)
 		quickSort(arr, low, part - 1);
 		quickSort(arr, part + 1, high);
 	}
+}
+
+void bubbleSort(Guard arr[], int n)
+{
+	int i, j, aux;
+	for (i = 0; i < n - 1; i++)
+
+		// Last i elements are already in place 
+		for (j = 0; j < n - i - 1; j++)
+			if (arr[j].prize < arr[j + 1].prize)
+			{
+				aux = arr[j].prize;
+				arr[j].prize = arr[j + 1].prize;
+				arr[j + 1].prize = aux;
+			}
 }
 
 int main()
@@ -466,7 +503,7 @@ int main()
 	{
 		m1 = marbles[remaining_index[i]].marbles;
 		m2 = marbles[remaining_index[i + 1]].marbles;
-		
+
 		cout << remaining_contestants[remaining_index[i]].number << ", " << m1 << " marbles - ";
 		cout << remaining_contestants[remaining_index[i + 1]].number << ", " << m2 << " marbles" << endl;
 
@@ -517,25 +554,86 @@ int main()
 
 	cout << endl;
 
-	for (i = n_remaining - 1; i >= 0; i-=2)
-	{
-		m1 = marbles[remaining_index[i]].marbles;
-		m2 = marbles[remaining_index[i + 1]].marbles;
+	int c1, c2, i1, i2;
 
-		if (m1 > m2)
+	while (n_remaining != 1)
+	{
+		for (i = n_remaining - 1; i >= 0; i -= 2)
 		{
-			eliminate_contestants(remaining_contestants, &n_remaining, i);
-		}
-		else
-		{
-			eliminate_contestants(remaining_contestants, &n_remaining, i);
+			if (n_remaining == 1)
+			{
+				break;
+			}
+
+			c1 = rand() % 3 + 1; // i
+			c2 = rand() % 3 + 1; // i - 1
+
+			while (c1 == c2)
+			{
+				c1 = rand() % 3 + 1;
+				c2 = rand() % 3 + 1;
+			}
+
+			i1 = i;
+			if (i == 0)
+			{
+				i2 = n_remaining - 1;
+			}
+			else i2 = i - 1;
+
+			cout << remaining_contestants[i1].number << " -> " << c1 << " - ";
+			cout << remaining_contestants[i2].number << " -> " << c2 << endl;
+
+			if ((c1 == 1 && c2 == 2) || (c1 == 2 && c2 == 3) || (c1 == 3 && c2 == 1))
+			{
+				eliminate_contestants(remaining_contestants, &n_remaining, i1);
+			}
+			else if ((c1 == 2 && c2 == 1) || (c1 == 3 && c2 == 2) || (c1 == 1 && c2 == 3))
+			{
+				eliminate_contestants(remaining_contestants, &n_remaining, i2);
+			}
 		}
 	}
 
-	cout << "\t --REMAINING CONTESTANTS--" << endl;
-	for (i = 0; i < n_remaining; i++)
+	cout << endl;
+
+	cout << "WINNER:\t";
+	remaining_contestants[0].printData();
+
+	cout << "--------------------------------------------" << endl << endl;
+
+	cout << "Press enter to continue . . .";
+	cin.get();
+
+	cout << "--------------------------------------------" << endl << endl;
+
+
+	// calculating the prizes
+
+	int winner_prize = remaining_contestants[0].debt * -1;
+
+	for (i = 0; i < n_contestants; i++)
 	{
-		remaining_contestants[i].printData();
+		winner_prize += remaining_contestants[i].debt;
+	}
+
+	cout << "The big prize: $" << winner_prize << endl << endl;
+
+	for (i = 0; i < n_guards; i++)
+	{
+		guards[i].prize = guards[i].debt * -1;
+
+		for (j = 0; j < n_contestants / n_guards; j++)
+		{
+			guards[i].prize += contestants[guards[i].group[j]].debt;
+		}
+	}
+
+	quickSort(guards[].prize, 0, n_guards - 1);
+
+	for (i = 0; i < n_guards; i++)
+	{
+		cout << guards[i].mask << " " << guards[i].name << "\t" << guards[i].surname << " - $" << guards[i].prize << endl;
 	}
 
 }
