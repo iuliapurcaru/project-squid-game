@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <time.h> 
 #include <algorithm>
-#include <iterator>
-#include <conio.h>
 
 using namespace std;
 
@@ -36,7 +34,7 @@ public:
 
 	void setData();
 
-	void printData() {}
+	virtual void printData() {}
 };
 
 void Participant::setData()
@@ -85,24 +83,14 @@ Contestant::Contestant(const Contestant& c1)
 	weight = c1.weight;
 }
 
-//Contestant::~Contestant()
-//{
-//	delete& name;
-//	delete& surname;
-//	delete& city;
-//	delete& debt;
-//	delete& weight;
-//}
-
 class Guard : public Participant
 {
 private:
-	//int group[11];
+	int group[11];
 	
 public:
 	string mask;
 	int prize;
-	int group[11];
 
 	Guard() {}
 	~Guard() {}
@@ -192,8 +180,7 @@ void eliminate_contestants(Contestant remaining_contestants[], int* n_remaining,
 	(*n_remaining)--;
 }
 
-template <typename X>
-X maxNum(X a, X b)
+int maxNum(int a, int b)
 {
 	if (a > b)
 		return a;
@@ -201,10 +188,19 @@ X maxNum(X a, X b)
 }
 
 template <typename X>
+void swap(X* a, X* b)
+{
+	X aux;
+
+	aux = *a;
+	*a = *b;
+	*b = aux;
+}
+
+template <typename X>
 void selectionSort(X arr[], int n)
 {
 	int i, j, min_idx;
-	X aux;
 
 	for (i = 0; i < n - 1; i++)
 	{
@@ -216,16 +212,14 @@ void selectionSort(X arr[], int n)
 				min_idx = j;
 			}
 		}
-		aux = arr[min_idx];
-		arr[min_idx] = arr[i];
-		arr[i] = aux;
+		swap<int>(&arr[i], &arr[min_idx]);
 	}
 }
 
 template <>
 void selectionSort(Guard arr[], int n)
 {
-	int i, j, min_idx, aux;
+	int i, j, min_idx;
 
 	for (i = 0; i < n - 1; i++)
 	{
@@ -237,9 +231,7 @@ void selectionSort(Guard arr[], int n)
 				min_idx = j;
 			}
 		}
-		aux = arr[min_idx].prize;
-		arr[min_idx].prize = arr[i].prize;
-		arr[i].prize = aux;
+		swap<Guard>(&arr[i], &arr[min_idx]);
 	}
 }
 
@@ -249,7 +241,6 @@ int main()
 
 	int n_contestants = 99;	// number of remaining contestants; always stays the same
 	int n_guards = 9;	//number of guards; always stays the same
-	int n_remaining = 0;	// number of remaining contestants; will be modified 
 
 	srand((unsigned int)time(NULL));
 
@@ -273,8 +264,10 @@ int main()
 
 	// creating array for remaining contestants (copying the contestants array into a separate one)
 
+	int n_remaining;	// number of remaining contestants; will be modified 
 	Contestant remaining_contestants[99];	// remaining_contestants array will be modified when contestants are eliminated
 											// the last member of this array will be the winner
+
 	for (i = 0; i < n_contestants; i++)
 	{
 		remaining_contestants[i] = contestants[i];
@@ -389,7 +382,7 @@ int main()
 
 	random_shuffle(begin(remaining_index), end(remaining_index));
 
-	TugOfWar group_tow[4];
+	TugOfWar* group_tow = new TugOfWar[4];
 
 	j = 0;
 	for (i = 0; i < n_remaining / 4; i++)
@@ -418,9 +411,9 @@ int main()
 
 	int max1, max2, final_max;
 
-	max1 = maxNum<int>(group_tow[0].total_weight, group_tow[1].total_weight);
-	max2 = maxNum<int>(group_tow[2].total_weight, group_tow[3].total_weight);
-	final_max = maxNum<int>(max1, max2);
+	max1 = maxNum(group_tow[0].total_weight, group_tow[1].total_weight);
+	max2 = maxNum(group_tow[2].total_weight, group_tow[3].total_weight);
+	final_max = maxNum(max1, max2);
 
 	int eliminate_numbers[40], l;
 
@@ -463,6 +456,7 @@ int main()
 
 	cout << "--------------------------------------------" << endl << endl;
 
+	delete []group_tow;
 
 	// 3. MARBLES
 
@@ -478,8 +472,7 @@ int main()
 		remaining_index[i] = i;
 	}
 
-	Marbles marbles[20];
-	int min_marbles[10];
+	Marbles* marbles = new Marbles[20];
 	int m1, m2;
 
 	l = 0;
@@ -502,6 +495,8 @@ int main()
 			l++;
 		}
 	}
+
+	delete[]marbles;
 
 	l = 0;
 	for (i = 0; i < n_remaining; i++)
@@ -596,7 +591,9 @@ int main()
 
 	// calculating the prizes
 
-	int winner_prize = remaining_contestants[0].debt * -1;
+	int winner_prize = remaining_contestants[0].debt * (-1);
+	int prize_cirlce = 0, prize_triangle = 0, prize_square = 0;
+	int max_prize;
 
 	for (i = 0; i < n_contestants; i++)
 	{
@@ -607,16 +604,28 @@ int main()
 
 	for (i = 0; i < n_guards; i++)
 	{
-		guards[i].prize = guards[i].debt * -1;
+		guards[i].prize = guards[i].debt * (-1);
 
 		for (j = 0; j < n_contestants / n_guards; j++)
 		{
-			guards[i].prize += contestants[guards[i].group[j]].debt;
-			if (guards[i].group[j] == remaining_contestants[0].number)
+			if (guards[i].getGroup(j) == remaining_contestants[0].number)
 			{
-				guards[i].prize = remaining_contestants[0].debt * 10;
-				break;
+				guards[i].prize += remaining_contestants[0].debt * 10;
 			}
+			else guards[i].prize += contestants[guards[i].getGroup(j) - 1].debt;
+		}
+
+		if (guards[i].mask == "circle")
+		{
+			prize_cirlce += guards[i].prize;
+		}
+		else if (guards[i].mask == "triangle")
+		{
+			prize_triangle += guards[i].prize;
+		}
+		else if (guards[i].mask == "square")
+		{
+			prize_square += guards[i].prize;
 		}
 	}
 
@@ -625,6 +634,27 @@ int main()
 	for (i = 0; i < n_guards; i++)
 	{
 		cout << guards[i].mask << " " << guards[i].name << "\t" << guards[i].surname << " - $" << guards[i].prize << endl;
+	}
+
+	max_prize = maxNum(maxNum(prize_cirlce, prize_square), prize_triangle);
+
+	cout << "circle - " << prize_cirlce << endl;
+	cout << "triangle - " << prize_triangle << endl;
+	cout << "square - " << prize_square << endl;
+
+	cout << "The team of guards who won the most money: ";
+	
+	if (prize_cirlce == max_prize)
+	{
+		cout << "circle";
+	}
+	else if (prize_triangle == max_prize)
+	{
+		cout << "triangle";
+	}
+	else if (prize_square == max_prize)
+	{
+		cout << "square";
 	}
 
 }
