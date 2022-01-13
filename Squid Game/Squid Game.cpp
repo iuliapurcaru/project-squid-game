@@ -38,8 +38,8 @@ public:
 	int weight;
 
 	void setData();
+	virtual void printData() = 0;
 
-	virtual void printData() {}
 };
 
 void Participant::setData()
@@ -83,7 +83,20 @@ public:
 			<< debt << "\t" 
 			<< weight << "kg " << endl;
 	}
+
+	friend void eliminateContestants(Contestant remaining_contestants[], int* n_remaining, int i);
 };
+
+void eliminateContestants(Contestant remaining_contestants[], int* n_remaining, int i)
+{
+	int j;
+
+	for (j = i; j < *n_remaining - 1; j++)
+	{
+		remaining_contestants[j] = remaining_contestants[j + 1];
+	}
+	(*n_remaining)--;
+}
 
 //
 
@@ -180,6 +193,7 @@ public:
 	~TugOfWar() {}
 
 	void calculatingWeight(Contestant remaining_contestants[], int n_remaining);
+	void weightComparison(int max_weight, int i1, int i2, int* imax);
 
 };
 
@@ -193,6 +207,29 @@ void TugOfWar::calculatingWeight(Contestant remaining_contestants[], int n_remai
 	{
 		cout << remaining_contestants[members[i]].number << " ";
 		total_weight += remaining_contestants[members[i]].weight;
+	}
+}
+
+void TugOfWar::weightComparison(int max_weight, int i1, int i2, int* imax)
+{
+	cout << "Team " << i1 + 1 << " vs Team " << i2 + 1 << " ----- ";
+
+	try
+	{
+		if (max_weight == total_weight)
+		{
+			*imax = i1;
+			throw i2;
+		}
+		else
+		{
+			*imax = i2;
+			throw i1;
+		}
+	}
+	catch (int x)
+	{
+		cout << "Team " << x + 1 << " eliminated!" << endl;
 	}
 }
 
@@ -215,17 +252,6 @@ Marbles::Marbles()
 }
 
 //
-
-void eliminate_contestants(Contestant remaining_contestants[], int* n_remaining, int i)
-{
-	int j;
-
-	for (j = i; j < *n_remaining - 1; j++)
-	{
-		remaining_contestants[j] = remaining_contestants[j + 1];
-	}
-	(*n_remaining)--;
-}
 
 int maxNum(int a, int b)
 {
@@ -284,9 +310,12 @@ void selectionSort(Guard a[], int n)
 	}
 }
 
+//
+
 int main()
 {
 	int i, j, k;
+	int i1, i2;
 
 	srand((unsigned int)time(NULL));
 
@@ -389,7 +418,7 @@ int main()
 	{
 		if (remaining_contestants[i].number % 2 == 0)
 		{
-			eliminate_contestants(remaining_contestants, &n_remaining, i);
+			eliminateContestants(remaining_contestants, &n_remaining, i);
 		}
 	}
 
@@ -458,17 +487,17 @@ int main()
 	int max1, max2, final_max;
 
 	max1 = maxNum(group_tow[0].total_weight, group_tow[1].total_weight);
+	group_tow[0].weightComparison(max1, 0, 1, &i1);
+	
 	max2 = maxNum(group_tow[2].total_weight, group_tow[3].total_weight);
-	final_max = maxNum(max1, max2);
+	group_tow[2].weightComparison(max2, 2, 3, &i2);
 
-	for (i = 0; i < 4; i++)
-	{
-		if (group_tow[i].total_weight == final_max)
-		{
-			cout << "\t\tTEAM " << i + 1 << " WINS!" << endl;
-			break;
-		}
-	}
+	final_max = maxNum(max1, max2);
+	group_tow[i1].weightComparison(final_max, i1, i2, &i1);
+
+	cout << endl;
+
+	cout << "\t\tTEAM " << i1 + 1 << " WINS!" << endl;
 
 	cout << endl;
 
@@ -497,7 +526,7 @@ int main()
 	{
 		if (remaining_contestants[i].number == eliminate_tow[k])
 		{
-			eliminate_contestants(remaining_contestants, &n_remaining, i);
+			eliminateContestants(remaining_contestants, &n_remaining, i);
 			i--;
 			k++;
 		}
@@ -554,22 +583,25 @@ int main()
 	k = 0;
 	for (i = 0; i < n_remaining; i += 2)
 	{
-		m1 = marbles[index_marbles[i]].marbles;
-		m2 = marbles[index_marbles[i + 1]].marbles;
+		i1 = index_marbles[i];
+		i2 = index_marbles[i + 1];
+		
+		m1 = marbles[i1].marbles;
+		m2 = marbles[i2].marbles;
 
-		cout << remaining_contestants[index_marbles[i]].number << " -> " << m1 << " marbles - ";
-		cout << remaining_contestants[index_marbles[i + 1]].number << " -> " << m2 << " marbles" << " ----- ";
+		cout << remaining_contestants[i1].number << " -> " << m1 << " marbles vs ";
+		cout << remaining_contestants[i2].number << " -> " << m2 << " marbles" << " ----- ";
 
 		if (m1 > m2)
 		{
-			cout << remaining_contestants[index_marbles[i]].number << " eliminated" << endl;
-			eliminate_marbles[k] = remaining_contestants[index_marbles[i]].number;
+			cout << remaining_contestants[i1].number << " eliminated" << endl;
+			eliminate_marbles[k] = remaining_contestants[i1].number;
 			k++;
 		}
 		else
 		{
-			cout << remaining_contestants[index_marbles[i + 1]].number << " eliminated" << endl;
-			eliminate_marbles[k] = remaining_contestants[index_marbles[i + 1]].number;
+			cout << remaining_contestants[i2].number << " eliminated" << endl;
+			eliminate_marbles[k] = remaining_contestants[i2].number;
 			k++;
 		}
 	}
@@ -583,7 +615,7 @@ int main()
 	{
 		if (remaining_contestants[i].number == eliminate_marbles[k])
 		{
-			eliminate_contestants(remaining_contestants, &n_remaining, i);
+			eliminateContestants(remaining_contestants, &n_remaining, i);
 			i--;
 			k++;
 		}
@@ -622,7 +654,9 @@ int main()
 
 	// the Genken game - until only one contestant remains
 
-	int c1, c2, i1, i2;
+	int c1, c2;
+
+	string genken[3] = { "rock", "paper", "scissors" };
 
 	while (n_remaining != 1)
 	{
@@ -644,18 +678,18 @@ int main()
 			}
 			else i2 = i - 1;
 
-			cout << remaining_contestants[i1].number << " -> " << c1 << " - ";
-			cout << remaining_contestants[i2].number << " -> " << c2 << " ----- ";
+			cout << remaining_contestants[i1].number << " -> " << genken[c1 - 1] << " vs ";
+			cout << remaining_contestants[i2].number << " -> " << genken[c2 - 1] << " ----- ";
 
 			if ((c1 == 1 && c2 == 2) || (c1 == 2 && c2 == 3) || (c1 == 3 && c2 == 1))
 			{
 				cout << remaining_contestants[i1].number << " eliminated" << endl;
-				eliminate_contestants(remaining_contestants, &n_remaining, i1);
+				eliminateContestants(remaining_contestants, &n_remaining, i1);
 			}
 			else if ((c1 == 2 && c2 == 1) || (c1 == 3 && c2 == 2) || (c1 == 1 && c2 == 3))
 			{
 				cout << remaining_contestants[i2].number << " eliminated" << endl;
-				eliminate_contestants(remaining_contestants, &n_remaining, i2);
+				eliminateContestants(remaining_contestants, &n_remaining, i2);
 			}
 		}
 	}
