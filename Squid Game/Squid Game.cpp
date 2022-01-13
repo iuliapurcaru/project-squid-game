@@ -4,8 +4,8 @@
 #include <time.h> 
 #include <algorithm>
 
-#define n_contestants 99	// number of remaining contestants; always stays the same
-#define n_guards 9	//number of guards; always stays the same
+#define n_contestants 99	// number of remaining contestants
+#define n_guards 9	// number of guards
 
 using namespace std;
 
@@ -25,6 +25,8 @@ int random_numbers[99] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 						71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
 						81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
 						91, 92, 93, 94, 95, 96, 97, 98, 99 };
+
+//
 
 class Participant
 {
@@ -57,6 +59,8 @@ void Participant::setData()
 	weight = rand() % 50 + 50;
 }
 
+//
+
 class Contestant : public Participant
 {
 public:
@@ -72,31 +76,31 @@ public:
 
 	void printData()
 	{
-		cout << number << "\t" << name << "\t" << surname << "\t" << city << "\t$" << debt << "\t" << weight << "kg " << endl;
+		cout << number << "\t" 
+			<< name << "\t" 
+			<< surname << "\t" 
+			<< city << "\t$" 
+			<< debt << "\t" 
+			<< weight << "kg " << endl;
 	}
 };
 
-//Contestant::~Contestant()
-//{
-//	delete& name;
-//	delete& surname;
-//	delete& city;
-//	delete& debt;
-//	delete& weight;
-//}
+//
 
 class Guard : public Participant
 {
 private:
 	int group[11];
-	//int prize;
+	int prize;
 
 public:
 	string mask;
-	int prize;
 
 	Guard() {}
 	~Guard() {}
+
+	int calculatePrize(Contestant contestants[], int winner_number);
+	void calculateTeamPrize(int* team_prize, string mask_check);
 
 	void setGroup(int j)
 	{
@@ -109,9 +113,6 @@ public:
 			i++;
 		}
 	}
-
-	int calculatePrize(Contestant contestants[], int winner_number);
-	void calculateTeamPrize(int* team_prize, string mask_check);
 
 	int getGroup(int j)
 	{
@@ -130,7 +131,11 @@ public:
 
 	void printData()
 	{
-		cout << mask << " " << name << "\t" << surname << "\t" << city << "\t$" << debt << endl;
+		cout << mask << " " 
+			<< name << "\t" 
+			<< surname << "\t" 
+			<< city << "\t$" 
+			<< debt << endl;
 	}
 
 };
@@ -162,6 +167,8 @@ void Guard::calculateTeamPrize(int* team_prize, string mask_check)
 	}
 }
 
+//
+
 class TugOfWar
 {
 public:
@@ -189,6 +196,8 @@ void TugOfWar::calculatingWeight(Contestant remaining_contestants[], int n_remai
 	}
 }
 
+//
+
 class Marbles
 {
 public:
@@ -205,26 +214,7 @@ Marbles::Marbles()
 	marbles = rand() % 10 + 1;
 }
 
-class Genken
-{
-public:
-
-	void genkenGame(int a, int b)
-	{
-		if (a == 1 && b == 2)
-		{
-
-		}
-		else if (a == 1 && b == 3)
-		{
-
-		}
-		else if (a == 2 && b == 3)
-		{
-
-		}
-	}
-};
+//
 
 void eliminate_contestants(Contestant remaining_contestants[], int* n_remaining, int i)
 {
@@ -299,7 +289,6 @@ int main()
 	int i, j, k;
 
 	srand((unsigned int)time(NULL));
-
 
 	// GETTING READY
 
@@ -389,7 +378,7 @@ int main()
 	// 1. RED LIGHT GREEN LIGHT
 
 	cout << "The first game is RED LIGHT GREEN LIGHT." << endl << endl;
-	cout << "Press enter to continue . . .";
+	cout << "Press enter to continue to the game . . .";
 	cin.get();
 
 	cout << "--------------------------------------------" << endl << endl;
@@ -426,7 +415,7 @@ int main()
 
 	cout << "The second game is TUG OF WAR." << endl;
 	cout << "The contestants will be divided into 4 groups." << endl << endl;
-	cout << "Press enter to continue . . .";
+	cout << "Press enter to continue to the game . . .";
 	cin.get();
 
 	cout << "--------------------------------------------" << endl << endl;
@@ -539,7 +528,7 @@ int main()
 
 	cout << "The third game is MARBLES." << endl;
 	cout << "The contestants will be split into pairs." << endl << endl;
-	cout << "Press enter to continue . . .";
+	cout << "Press enter to continue to the game . . .";
 	cin.get();
 
 	cout << "--------------------------------------------" << endl << endl;
@@ -563,7 +552,7 @@ int main()
 	int* eliminate_marbles = new int[14];
 
 	k = 0;
-	for (i = 0; i < n_remaining; i+=2)
+	for (i = 0; i < n_remaining; i += 2)
 	{
 		m1 = marbles[index_marbles[i]].marbles;
 		m2 = marbles[index_marbles[i + 1]].marbles;
@@ -626,7 +615,7 @@ int main()
 
 	cout << "The final game is GENKEN." << endl;
 	cout << "The contestants will duel until only one remains." << endl << endl;
-	cout << "Press enter to continue . . .";
+	cout << "Press enter to continue to the game. . .";
 	cin.get();
 
 	cout << endl;
@@ -675,10 +664,10 @@ int main()
 
 	// the winner
 
-	cout << "WINNER:\t CONTESTANT NO. ";
-	cout << remaining_contestants[0].number << " ";
-	cout << remaining_contestants[0].name << " ";
-	cout << remaining_contestants[0].surname << endl;
+	cout << "WINNER:\t CONTESTANT NO. "
+		<< remaining_contestants[0].number << " "
+		<< remaining_contestants[0].name << " "
+		<< remaining_contestants[0].surname << endl;
 
 	cout << "--------------------------------------------" << endl << endl;
 
@@ -714,10 +703,10 @@ int main()
 
 	for (i = 0; i < n_guards; i++)
 	{
-		cout << guards[i].mask << " ";
-		cout << guards[i].name << "\t";
-		cout << guards[i].surname << "\t$";
-		cout << guards[i].getPrize() << endl;
+		cout << guards[i].mask << " "
+			<< guards[i].name << "\t"
+			<< guards[i].surname << "\t$"
+			<< guards[i].getPrize() << endl;
 
 		guards[i].calculateTeamPrize(&prize_circle, "circle");
 		guards[i].calculateTeamPrize(&prize_triangle, "triangle");
@@ -729,10 +718,10 @@ int main()
 
 	max_prize = maxNum(maxNum(prize_circle, prize_square), prize_triangle);
 
-	cout << "Team circle - $" << prize_circle << endl;
-	cout << "Team triangle - $" << prize_triangle << endl;
-	cout << "Team square - $" << prize_square << endl;
-	cout << endl;
+	cout << "Team circle - $" << prize_circle << endl
+		<< "Team triangle - $" << prize_triangle << endl
+		<< "Team square - $" << prize_square << endl
+		<< endl;
 
 	cout << "The team of guards who won the most money: ";
 
