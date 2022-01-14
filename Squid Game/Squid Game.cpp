@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h> 
 #include <algorithm>
+#include <random>
 
 #define n_contestants 99	// number of remaining contestants
 #define n_guards 9	// number of guards
@@ -30,14 +31,18 @@ int random_numbers[99] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 
 class Participant
 {
+private:
+	unsigned int debt;
+	int weight;
+
 public:
 	string surname;
 	string name;
 	string city;
-	int debt;
-	int weight;
 
 	void setData();
+	int getDebt();
+	int getWeight();
 	virtual void printData() = 0;
 
 };
@@ -45,6 +50,10 @@ public:
 void Participant::setData()
 {
 	int random;
+
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> distr(10000, 100000);
 
 	random = rand() % 15;
 	name = random_names[random];
@@ -55,8 +64,18 @@ void Participant::setData()
 	random = rand() % 10;
 	city = random_cities[random];
 
-	debt = rand() % 100000 + 10000;
+	debt = distr(gen);
 	weight = rand() % 50 + 50;
+}
+
+int Participant::getDebt()
+{
+	return this->debt;
+}
+
+int Participant::getWeight()
+{
+	return this->weight;
 }
 
 //
@@ -69,23 +88,26 @@ public:
 	Contestant() {}
 	~Contestant() {}
 
-	void setNumber(int n)
-	{
-		number = n;
-	}
-
-	void printData()
-	{
-		cout << number << "\t" 
-			<< name << "\t" 
-			<< surname << "\t" 
-			<< city << "\t$" 
-			<< debt << "\t" 
-			<< weight << "kg " << endl;
-	}
+	void setNumber(int n);
+	void printData();
 
 	friend void eliminateContestants(Contestant remaining_contestants[], int* n_remaining, int i);
 };
+
+void Contestant::setNumber(int n)
+{
+	number = n;
+}
+
+void Contestant::printData()
+{
+	cout << number << "\t"
+		<< name << "\t"
+		<< surname << "\t"
+		<< city << "\t$"
+		<< getDebt() << "\t"
+		<< getWeight() << "kg " << endl;
+}
 
 void eliminateContestants(Contestant remaining_contestants[], int* n_remaining, int i)
 {
@@ -112,64 +134,68 @@ public:
 	Guard() {}
 	~Guard() {}
 
+	void setGroup(int j);
+	int getGroup(int j);
+	void setPrize(int p);
+	int getPrize();
+	void printData();
+
 	int calculatePrize(Contestant contestants[], int winner_number);
 	void calculateTeamPrize(int* team_prize, string mask_check);
-
-	void setGroup(int j)
-	{
-		int i = 0;
-		int jmax = j + 11;
-
-		for (; j < jmax; j++)
-		{
-			this->group[i] = random_numbers[j];
-			i++;
-		}
-	}
-
-	int getGroup(int j)
-	{
-		return this->group[j];
-	}
-
-	void setPrize(int p)
-	{
-		prize = p;
-	}
-
-	int getPrize()
-	{
-		return this->prize;
-	}
-
-	void printData()
-	{
-		cout << mask << " " 
-			<< name << "\t" 
-			<< surname << "\t" 
-			<< city << "\t$" 
-			<< debt << endl;
-	}
-
 };
+
+void Guard::setGroup(int j)
+{
+	int i = 0;
+	int jmax = j + 11;
+
+	for (; j < jmax; j++)
+	{
+		this->group[i] = random_numbers[j];
+		i++;
+	}
+}
+
+int Guard::getGroup(int j)
+{
+	return this->group[j];
+}
+
+void Guard::setPrize(int p)
+{
+	this->prize = p;
+}
+
+int Guard::getPrize()
+{
+	return this->prize;
+}
+
+void Guard::printData()
+{
+	cout << mask << " "
+		<< name << "\t"
+		<< surname << "\t"
+		<< city << "\t$"
+		<< getDebt() << endl;
+}
 
 int Guard::calculatePrize(Contestant contestants[], int winner_number)
 {
 	int j;
 
-	prize = debt * (-1);
+	prize = getDebt() * (-1);
 
 	for (j = 0; j < n_contestants / n_guards; j++)
 	{
 		if (getGroup(j) == winner_number)
 		{
-			prize += contestants[winner_number - 1].debt * 10;
+			prize += contestants[winner_number - 1].getDebt() * 10;
 		}
-		else prize += contestants[getGroup(j) - 1].debt;
+		else prize += contestants[getGroup(j) - 1].getDebt();
 	}
 
 	return prize;
-
 }
 
 void Guard::calculateTeamPrize(int* team_prize, string mask_check)
@@ -192,12 +218,12 @@ public:
 	TugOfWar() {}
 	~TugOfWar() {}
 
-	void calculatingWeight(Contestant remaining_contestants[], int n_remaining);
+	void calculateWeight(Contestant remaining_contestants[], int n_remaining);
 	void weightComparison(int max_weight, int i1, int i2, int* imax);
 
 };
 
-void TugOfWar::calculatingWeight(Contestant remaining_contestants[], int n_remaining)
+void TugOfWar::calculateWeight(Contestant remaining_contestants[], int n_remaining)
 {
 	int i;
 
@@ -206,7 +232,7 @@ void TugOfWar::calculatingWeight(Contestant remaining_contestants[], int n_remai
 	for (i = 0; i < n_remaining / 4; i++)
 	{
 		cout << remaining_contestants[members[i]].number << " ";
-		total_weight += remaining_contestants[members[i]].weight;
+		total_weight += remaining_contestants[members[i]].getWeight();
 	}
 }
 
@@ -271,42 +297,56 @@ void swap(X* a, X* b)
 }
 
 template <typename X>
-void selectionSort(X a[], int n)
+int partition(X arr[], int low, int high)
 {
-	int i, j, idx;
+	int pivot = arr[high];
+	int i, j;
 
-	for (i = 0; i < n - 1; i++)
+	i = low - 1;
+
+	for (j = low; j < high; j++)
 	{
-		idx = i;
-		for (j = i + 1; j < n; j++)
+		if (arr[j] < pivot)
 		{
-			if (a[j] < a[idx])
-			{
-				idx = j;
-			}
+			i++;
+			swap<X>(&arr[i], &arr[j]);
 		}
-		swap<int>(&a[i], &a[idx]);
 	}
+	swap<X>(&arr[i + 1], &arr[high]);
+
+	return (i + 1);
 }
 
 template <>
-void selectionSort(Guard a[], int n)
+int partition(Guard arr[], int low, int high)
 {
-	int i, j, idx;
-	Guard aux;
+	int pivot = arr[high].getPrize();
+	int i, j;
 
-	for (i = 0; i < n - 1; i++)
+	i = low - 1;
+
+	for (j = low; j < high; j++)
 	{
-		idx = i;
-		for (j = i + 1; j < n; j++)
+		if (arr[j].getPrize() > pivot)
 		{
-			if (a[j].getPrize() > a[idx].getPrize())
-			{
-				idx = j;
-			}
+			i++;
+			swap<Guard>(&arr[i], &arr[j]);
 		}
-		swap<Guard>(&a[i], &a[idx]);
+	}
+	swap<Guard>(&arr[i + 1], &arr[high]);
 
+	return (i + 1);
+}
+
+template <typename X>
+void quickSort(X arr[], int low, int high)
+{
+	if (low < high)
+	{
+		int part = partition(arr, low, high);
+
+		quickSort<X>(arr, low, part - 1);
+		quickSort<X>(arr, part + 1, high);
 	}
 }
 
@@ -476,7 +516,7 @@ int main()
 	for (i = 0; i < 4; i++)
 	{
 		cout << "Team " << i + 1 << ": ";
-		group_tow[i].calculatingWeight(remaining_contestants, n_remaining);
+		group_tow[i].calculateWeight(remaining_contestants, n_remaining);
 		cout << "- total weight: " << group_tow[i].total_weight << "kg" << endl;
 	}
 
@@ -488,7 +528,7 @@ int main()
 
 	max1 = maxNum(group_tow[0].total_weight, group_tow[1].total_weight);
 	group_tow[0].weightComparison(max1, 0, 1, &i1);
-	
+
 	max2 = maxNum(group_tow[2].total_weight, group_tow[3].total_weight);
 	group_tow[2].weightComparison(max2, 2, 3, &i2);
 
@@ -519,7 +559,7 @@ int main()
 		}
 	}
 
-	selectionSort<int>(eliminate_tow, (n_remaining / 4) * 3);
+	quickSort<int>(eliminate_tow, 0, (n_remaining / 4) * 3 - 1);
 
 	k = 0;
 	for (i = 0; i < n_remaining; i++)
@@ -585,9 +625,11 @@ int main()
 	{
 		i1 = index_marbles[i];
 		i2 = index_marbles[i + 1];
-		
+
 		m1 = marbles[i1].marbles;
 		m2 = marbles[i2].marbles;
+
+
 
 		cout << remaining_contestants[i1].number << " -> " << m1 << " marbles vs ";
 		cout << remaining_contestants[i2].number << " -> " << m2 << " marbles" << " ----- ";
@@ -608,7 +650,7 @@ int main()
 
 	// eliminating cotestants
 
-	selectionSort<int>(eliminate_marbles, n_remaining / 2);
+	quickSort<int>(eliminate_marbles, 0, (n_remaining / 2) - 1);
 
 	k = 0;
 	for (i = 0; i < n_remaining; i++)
@@ -713,23 +755,23 @@ int main()
 
 	// calculating the prizes
 
-	int winner_prize = remaining_contestants[0].debt * (-1);
+	int winner_prize = remaining_contestants[0].getDebt() * (-1);
 	int prize_circle = 0, prize_triangle = 0, prize_square = 0;
 	int max_prize;
 
-	for (i = 0; i < n_contestants; i++)
+	for (i = 0; i < n_contestants; i++)	// calculating the winner contestant's prize
 	{
-		winner_prize += contestants[i].debt;
+		winner_prize += contestants[i].getDebt();
 	}
 
-	cout << "The winner prize: $" << winner_prize << endl << endl;
+	cout << "The winner won the big prize: $" << winner_prize << endl << endl;
 
-	for (i = 0; i < n_guards; i++)
+	for (i = 0; i < n_guards; i++)	// calculating the prize for each guard
 	{
 		guards[i].setPrize(guards[i].calculatePrize(contestants, remaining_contestants[0].number));
 	}
 
-	selectionSort<Guard>(guards, n_guards);
+	quickSort<Guard>(guards, 0, n_guards - 1);	// sorting guards in descending order of their prizes
 
 	cout << "\t--GUARDS--" << endl;
 	cout << "Mask\tName\tSurname\tPrize" << endl;
@@ -742,7 +784,7 @@ int main()
 			<< guards[i].surname << "\t$"
 			<< guards[i].getPrize() << endl;
 
-		guards[i].calculateTeamPrize(&prize_circle, "circle");
+		guards[i].calculateTeamPrize(&prize_circle, "circle");		// calculating the prize for each team of guards
 		guards[i].calculateTeamPrize(&prize_triangle, "triangle");
 		guards[i].calculateTeamPrize(&prize_square, "square");
 
