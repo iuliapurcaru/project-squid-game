@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <random>
 
-#define n_contestants 99	// number of remaining contestants
+#define n_contestants 99	// number of total contestants
 #define n_guards 9	// number of guards
 
 using namespace std;
@@ -85,7 +85,7 @@ class Contestant : public Participant
 public:
 	int number;
 
-	Contestant() {}
+	Contestant() {};
 	~Contestant() {}
 
 	void setNumber(int n);
@@ -219,7 +219,7 @@ public:
 	~TugOfWar() {}
 
 	void calculateWeight(Contestant remaining_contestants[], int n_remaining);
-	void weightComparison(int max_weight, int i1, int i2, int* imax);
+	void compareWeight(int max_weight, int i1, int i2, int* imax);
 
 };
 
@@ -236,7 +236,7 @@ void TugOfWar::calculateWeight(Contestant remaining_contestants[], int n_remaini
 	}
 }
 
-void TugOfWar::weightComparison(int max_weight, int i1, int i2, int* imax)
+void TugOfWar::compareWeight(int max_weight, int i1, int i2, int* imax)
 {
 	cout << "Team " << i1 + 1 << " vs Team " << i2 + 1 << " ----- ";
 
@@ -279,6 +279,26 @@ Marbles::Marbles()
 
 //
 
+class Genken
+{
+public:
+	
+	int n_choice;
+	string choice;
+
+	Genken();
+	~Genken() {}
+};
+
+Genken::Genken()
+{
+	string genken[3] = { "rock", "paper", "scissors" };
+	n_choice = rand() % 3 + 1;
+	choice = genken[n_choice - 1];
+}
+
+//
+
 int maxNum(int a, int b)
 {
 	if (a > b)
@@ -297,56 +317,56 @@ void swap(X* a, X* b)
 }
 
 template <typename X>
-int partition(X arr[], int low, int high)
+int partition(X array[], int low, int high)	// ascending template
 {
-	int pivot = arr[high];
+	int pivot = array[high];
 	int i, j;
 
 	i = low - 1;
 
 	for (j = low; j < high; j++)
 	{
-		if (arr[j] < pivot)
+		if (array[j] < pivot)
 		{
 			i++;
-			swap<X>(&arr[i], &arr[j]);
+			swap<X>(&array[i], &array[j]);
 		}
 	}
-	swap<X>(&arr[i + 1], &arr[high]);
+	swap<X>(&array[i + 1], &array[high]);
 
 	return (i + 1);
 }
 
 template <>
-int partition(Guard arr[], int low, int high)
+int partition(Guard array[], int low, int high) // descending template specialization for Guard objects
 {
-	int pivot = arr[high].getPrize();
+	int pivot = array[high].getPrize();
 	int i, j;
 
 	i = low - 1;
 
 	for (j = low; j < high; j++)
 	{
-		if (arr[j].getPrize() > pivot)
+		if (array[j].getPrize() > pivot)
 		{
 			i++;
-			swap<Guard>(&arr[i], &arr[j]);
+			swap<Guard>(&array[i], &array[j]);
 		}
 	}
-	swap<Guard>(&arr[i + 1], &arr[high]);
+	swap<Guard>(&array[i + 1], &array[high]);
 
 	return (i + 1);
 }
 
 template <typename X>
-void quickSort(X arr[], int low, int high)
+void quickSort(X array[], int low, int high)
 {
 	if (low < high)
 	{
-		int part = partition(arr, low, high);
+		int part = partition(array, low, high);
 
-		quickSort<X>(arr, low, part - 1);
-		quickSort<X>(arr, part + 1, high);
+		quickSort<X>(array, low, part - 1);
+		quickSort<X>(array, part + 1, high);
 	}
 }
 
@@ -363,7 +383,7 @@ int main()
 
 	// setting data for contestants
 
-	Contestant contestants[99]; // contestants array will NOT be modified
+	Contestant* contestants = new Contestant[99]; // contestants array will NOT be modified
 
 	cout << "\t\t--CONTESTANTS--" << endl;
 	cout << "Number\tName\tSurname\tCity\tDebt\tWeight" << endl;
@@ -378,7 +398,7 @@ int main()
 
 	// creating array for remaining contestants (copying the contestants array into a separate one)
 
-	Contestant remaining_contestants[99];	// remaining_contestants array will be modified when contestants are eliminated
+	Contestant* remaining_contestants = new Contestant[99];	// will be modified when contestants are eliminated
 	int n_remaining;	// number of remaining contestants; will be modified 
 
 	for (i = 0; i < n_contestants; i++)
@@ -393,7 +413,7 @@ int main()
 
 	// setting data for guards
 
-	Guard guards[9];
+	Guard* guards = new Guard[9];
 
 	cout << "\t\t--GUARDS--" << endl;
 	cout << "Mask\tName\tSurname\tCity\tDebt" << endl;
@@ -412,9 +432,9 @@ int main()
 	cout << "--------------------------------------------" << endl << endl;
 
 
-	// splitting contestants into groups - each guard will have 11 contestants
+	// splitting contestants into equal groups so each guard will have 11 contestants
 
-	cout << "--Guards and the contestants they will supervise--\n";
+	cout << "Guards and the contestants they will supervise:" << endl;
 
 	random_shuffle(begin(random_numbers), end(random_numbers)); // random number generator
 
@@ -494,7 +514,7 @@ int main()
 	TugOfWar* group_tow = new TugOfWar[4];
 	int* index_tow = new int[50];
 
-	for (i = 0; i < n_remaining; i++)
+	for (i = 0; i < n_remaining; i++)	// saving the remaining contestants index to shuffle the array and randomize the teams
 	{
 		index_tow[i] = i;
 	}
@@ -516,7 +536,7 @@ int main()
 	for (i = 0; i < 4; i++)
 	{
 		cout << "Team " << i + 1 << ": ";
-		group_tow[i].calculateWeight(remaining_contestants, n_remaining);
+		group_tow[i].calculateWeight(remaining_contestants, n_remaining); // calculating the total weight of the team
 		cout << "- total weight: " << group_tow[i].total_weight << "kg" << endl;
 	}
 
@@ -526,14 +546,14 @@ int main()
 
 	int max1, max2, final_max;
 
-	max1 = maxNum(group_tow[0].total_weight, group_tow[1].total_weight);
-	group_tow[0].weightComparison(max1, 0, 1, &i1);
+	max1 = maxNum(group_tow[0].total_weight, group_tow[1].total_weight); // team 1 vs team 2; i1 is the index for the winner team
+	group_tow[0].compareWeight(max1, 0, 1, &i1);
 
-	max2 = maxNum(group_tow[2].total_weight, group_tow[3].total_weight);
-	group_tow[2].weightComparison(max2, 2, 3, &i2);
+	max2 = maxNum(group_tow[2].total_weight, group_tow[3].total_weight); // team 3 vs team 4; i2 is the index for the winner team
+	group_tow[2].compareWeight(max2, 2, 3, &i2);
 
 	final_max = maxNum(max1, max2);
-	group_tow[i1].weightComparison(final_max, i1, i2, &i1);
+	group_tow[i1].compareWeight(final_max, i1, i2, &i1);
 
 	cout << endl;
 
@@ -544,7 +564,7 @@ int main()
 
 	// eliminating contestants
 
-	int* eliminate_tow = new int[40];
+	int* eliminate_tow = new int[40]; // the numbers for the contestants aren't sorted so we will need to sort an array with the numbers that need to be eliminated
 
 	k = 0;
 	for (i = 0; i < 4; i++)
@@ -553,7 +573,7 @@ int main()
 		{
 			for (j = 0; j < 12; j++)
 			{
-				eliminate_tow[k] = remaining_contestants[group_tow[i].members[j]].number;
+				eliminate_tow[k] = remaining_contestants[group_tow[i].members[j]].number; // copying the numbers that need to be eliminated from the teams that were eliminated
 				k++;
 			}
 		}
@@ -610,7 +630,7 @@ int main()
 
 	for (i = 0; i < n_remaining; i++)
 	{
-		index_marbles[i] = i;
+		index_marbles[i] = i; // saving the remaining contestants index to shuffle the array and randomize the pairs
 	}
 
 	random_shuffle(index_marbles, index_marbles + n_remaining);
@@ -618,7 +638,7 @@ int main()
 	// the Marbles game
 
 	int m1, m2;
-	int* eliminate_marbles = new int[14];
+	int* eliminate_marbles = new int[14]; // the numbers for the contestants aren't sorted so we will need to sort an array with the numbers that need to be eliminated
 
 	k = 0;
 	for (i = 0; i < n_remaining; i += 2)
@@ -626,10 +646,25 @@ int main()
 		i1 = index_marbles[i];
 		i2 = index_marbles[i + 1];
 
+		while (true)
+		{
+			try
+			{
+				if (marbles[i1].marbles == marbles[i2].marbles)
+				{
+					throw 1;
+				}
+				else break;
+			}
+			catch (...)
+			{
+				marbles[i1] = Marbles();
+				marbles[i2] = Marbles();
+			}
+		}
+
 		m1 = marbles[i1].marbles;
 		m2 = marbles[i2].marbles;
-
-
 
 		cout << remaining_contestants[i1].number << " -> " << m1 << " marbles vs ";
 		cout << remaining_contestants[i2].number << " -> " << m2 << " marbles" << " ----- ";
@@ -696,21 +731,31 @@ int main()
 
 	// the Genken game - until only one contestant remains
 
-	int c1, c2;
-
-	string genken[3] = { "rock", "paper", "scissors" };
+	Genken* genken = new Genken[2];
+	int g1, g2;
 
 	while (n_remaining != 1)
 	{
 		for (i = n_remaining - 1; i >= 0; i -= 2)
 		{
-			c1 = rand() % 3 + 1; // i
-			c2 = rand() % 3 + 1; // i - 1
+			genken[0] = Genken();
+			genken[1] = Genken();
 
-			while (c1 == c2)
+			while (true)
 			{
-				c1 = rand() % 3 + 1;
-				c2 = rand() % 3 + 1;
+				try
+				{
+					if (genken[0].choice == genken[1].choice)
+					{
+						throw 1;
+					}
+					else break;
+				}
+				catch (...)
+				{
+					genken[0] = Genken();
+					genken[1] = Genken();
+				}
 			}
 
 			i1 = i;
@@ -720,15 +765,18 @@ int main()
 			}
 			else i2 = i - 1;
 
-			cout << remaining_contestants[i1].number << " -> " << genken[c1 - 1] << " vs ";
-			cout << remaining_contestants[i2].number << " -> " << genken[c2 - 1] << " ----- ";
+			g1 = genken[0].n_choice; // i1
+			g2 = genken[1].n_choice; // i2
 
-			if ((c1 == 1 && c2 == 2) || (c1 == 2 && c2 == 3) || (c1 == 3 && c2 == 1))
+			cout << remaining_contestants[i1].number << " -> " << genken[0].choice << " vs ";
+			cout << remaining_contestants[i2].number << " -> " << genken[1].choice << " ----- ";
+
+			if ((g1 == 1 && g2 == 2) || (g1 == 2 && g2 == 3) || (g1 == 3 && g2 == 1))
 			{
 				cout << remaining_contestants[i1].number << " eliminated" << endl;
 				eliminateContestants(remaining_contestants, &n_remaining, i1);
 			}
-			else if ((c1 == 2 && c2 == 1) || (c1 == 3 && c2 == 2) || (c1 == 1 && c2 == 3))
+			else if ((g1 == 2 && g2 == 1) || (g1 == 3 && g2 == 2) || (g1 == 1 && g2 == 3))
 			{
 				cout << remaining_contestants[i2].number << " eliminated" << endl;
 				eliminateContestants(remaining_contestants, &n_remaining, i2);
@@ -737,6 +785,8 @@ int main()
 	}
 
 	cout << endl;
+
+	delete[] genken;
 
 	// the winner
 
@@ -823,4 +873,9 @@ int main()
 
 	cout << "--------------------------------------------" << endl << endl;
 
+	delete[] contestants;
+	delete[] remaining_contestants;
+	delete[] guards;
+
+	return 0;
 }
